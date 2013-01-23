@@ -185,11 +185,13 @@ class python27(base.python27,Recipe,):
         #  We can't do this until after the build has completed.
         super(python27, self).install()
         def hardcode_platform(lines):
+            architecture = {'32bit': 'linux-i686', '64bit': 'linux-x86_64'}
             for ln in lines:
                 yield ln
                 if ln.strip() == "def get_platform ():":
-                    yield "    return 'linux-i686'\n\n"
+                    yield "    return '%s'\n\n" % architecture[self.target.ARCH]
         self._patch_file(os.path.join(self.PREFIX, "lib/python2.7/distutils/util.py"),hardcode_platform)
+
 
 class patchelf(Recipe):
     SOURCE_URL = "http://hydra.nixos.org/build/1524660/download/2/patchelf-0.6.tar.bz2"
