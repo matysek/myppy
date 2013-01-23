@@ -175,8 +175,11 @@ class _init(_cmd):
     """initialise a new portable python env"""
     @staticmethod
     def run(target,args):
-        assert not args
-        target.init()
+        # Allow the user to specify architecture '32bit' or '64bit' as part
+        # of environment setup. If not specified defaults to the architecture
+        # of host OS. (Linux only).
+        assert not args or len(args) == 1
+        target.init(args)
 
 class _clean(_cmd):
     """clean out temporary files (e.g. build files)"""

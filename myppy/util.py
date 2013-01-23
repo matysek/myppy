@@ -171,3 +171,13 @@ def isrealdir(path):
     """Check if path is a real directory, not a symlink to a directory."""
     return (os.path.isdir(path) and not os.path.islink(path))
 
+
+def python_architecture():
+    """Check architecture (32/64 bit) of python interpreter."""
+    if sys.platform.startswith('darwin'):
+        if sys.maxint > 2L ** 32:
+            return '64bit'
+        else:
+            return '32bit'
+    else:
+        return platform.architecture()[0]
