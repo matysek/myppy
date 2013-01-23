@@ -192,8 +192,8 @@ class python27(base.python27,Recipe,):
         self._patch_file(os.path.join(self.PREFIX, "lib/python2.7/distutils/util.py"),hardcode_platform)
 
 class patchelf(Recipe):
-    SOURCE_URL = "http://hydra.nixos.org/build/114505/download/2/patchelf-0.5.tar.bz2"
-    SOURCE_MD5 = "c41fc98091d15dc93ba876c3ef11f43c"
+    SOURCE_URL = "http://hydra.nixos.org/build/1524660/download/2/patchelf-0.6.tar.bz2"
+    SOURCE_MD5 = "5087261514b4b5814a39c3d3a36eb6ef"
 
 
 class lib_openssl(base.lib_openssl,Recipe):

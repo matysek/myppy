@@ -34,7 +34,11 @@ class MyppyEnv(base.MyppyEnv):
     @property
     def LDFLAGS(self):
         flags = self._arch_switch + ''
-        for libdir in ("lib", "opt/lsb/lib"):
+        dirs = {
+                '32bit':("lib", "opt/lsb/lib"),
+                '64bit':('lib', 'opt/lsb/lib64'),
+        }
+        for libdir in dirs[self.ARCH]:
             flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
