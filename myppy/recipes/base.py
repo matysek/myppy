@@ -438,9 +438,19 @@ class lib_tiff(Recipe):
 
 
 class lib_openssl(Recipe):
+    DEPENDENCIES = ['lib_zlib']
     SOURCE_URL = "http://www.openssl.org/source/openssl-1.0.1c.tar.gz"
     CONFIGURE_SCRIPT = "./Configure"
     CONFIGURE_ARGS = ["linux-elf","shared"]
+    @property
+    def CONFIGURE_ARGS(self):
+        args = {
+                '32bit': ['linux-elf'],
+                '64bit': ['linux-x86_64'],
+        }
+        return args[self.target.ARCH] + ['shared', 'no-dso', 'zlib', 'no-krb5',
+            '-DOPENSSL_NO_DSO', '-I%s' % os.path.join(self.PREFIX, 'include'),
+            '-L%s' % os.path.join(self.PREFIX, 'lib')]
     CONFIGURE_VARS = None
     def _patch(self):
         super(lib_openssl,self)._patch()
@@ -467,6 +477,18 @@ class lib_openssl(Recipe):
                 else:
                     yield ln
         self._patch_build_file("crypto/bio/bss_dgram.c",fix_dgram_for_lsb)
+        def do_not_install_engines(lines):
+            for ln in lines:
+                # Fix openssl installation with 'no-dso' option.
+                # https://rt.openssl.org/Ticket/Display.html?user=guest&pass=guest&id=1754
+                if ln.startswith('				case "$(CFLAGS)" in \\'):
+                    ln = ln + \
+                        '				*OPENSSL_NO_DSO*)	echo ... skipping install OPENSSL_NO_DSO defined; continue;;	\\\n'
+                # Do not build any engine subdirectories.
+                elif ln.startswith('RECURSIVE_MAKE='):
+                    ln = 'RECURSIVE_MAKE= [ -z "" ] || for i in $(ENGDIRS) ; do\\\n'
+                yield ln
+        self._patch_build_file('engines/Makefile', do_not_install_engines)
 
 
 class lib_sqlite3(Recipe):

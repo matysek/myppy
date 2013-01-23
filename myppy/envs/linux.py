@@ -44,14 +44,14 @@ class MyppyEnv(base.MyppyEnv):
 
     @property
     def CFLAGS(self):
-        flags = "-Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
+        flags = "-fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def CXXFLAGS(self):
-        flags = "-Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
+        flags = "-fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
