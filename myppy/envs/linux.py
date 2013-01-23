@@ -18,30 +18,36 @@ class MyppyEnv(base.MyppyEnv):
     DEPENDENCIES.extend(base.MyppyEnv.DEPENDENCIES)
 
     @property
+    def _arch_switch(self):
+        """Return cli option for the compiler to compile 32bit or 64bit app."""
+        switch = {'32bit': '-m32', '64bit': '-m64'}
+        retutn switch[self.ARCH]
+
+    @property
     def CC(self):
-        return "lsbcc -m32"
+        return "lsbcc " + self._arch_switch
 
     @property
     def CXX(self):
-        return "lsbc++ -m32"
+        return "lsbc++ " + self._arch_switch
 
     @property
     def LDFLAGS(self):
-        flags = "-m32"
+        flags = self._arch_switch + ''
         for libdir in ("lib", "opt/lsb/lib"):
             flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
     @property
     def CFLAGS(self):
-        flags = "-Os -D_GNU_SOURCE -DNDEBUG -m32"
+        flags = "-Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def CXXFLAGS(self):
-        flags = "-Os -D_GNU_SOURCE -DNDEBUG -m32"
+        flags = "-Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags

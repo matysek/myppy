@@ -62,7 +62,7 @@ class MyppyEnv(object):
         self._initdb()
         # Whether to build 32bit or 64bit architecture. Defaults to archtecture
         # of Python interpreter.
-        self.arch = util.python_architecture()
+        self.ARCH = util.python_architecture()
 
     def __enter__(self):
         if not self._has_db_lock:
@@ -119,7 +119,7 @@ class MyppyEnv(object):
         # If no architecture is specified - defaults to the architecture
         # of Python (32bit on linux-i686 and 64bit on linux-x86_64)
         if len(args) == 1:
-            self.arch = args[0]
+            self.ARCH = args[0]
         for dep in self.DEPENDENCIES:
             self.install(dep,initialising=True,explicit=False)
         
