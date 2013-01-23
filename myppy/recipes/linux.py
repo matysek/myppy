@@ -201,8 +201,6 @@ class lib_openssl(base.lib_openssl,Recipe):
         super(lib_openssl,self)._configure()
         def ensure_gnu_source(lines):
             arch_switch = self.target._arch_switch  # -m32 or -m64
-            print 30 * 'S'
-            print arch_switch
             for ln in lines:
                 if ln.startswith("CFLAG="):
                     ln = ln.strip() + ' -D_GNU_SOURCE %s\n' % arch_switch
