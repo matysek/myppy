@@ -16,6 +16,7 @@ import subprocess
 import shutil
 import hashlib
 import contextlib
+import platform
 from fnmatch import fnmatch
 
 

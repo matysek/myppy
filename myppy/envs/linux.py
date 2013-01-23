@@ -21,7 +21,7 @@ class MyppyEnv(base.MyppyEnv):
     def _arch_switch(self):
         """Return cli option for the compiler to compile 32bit or 64bit app."""
         switch = {'32bit': '-m32', '64bit': '-m64'}
-        retutn switch[self.ARCH]
+        return switch[self.ARCH]
 
     @property
     def CC(self):

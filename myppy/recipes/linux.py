@@ -352,7 +352,13 @@ class lib_wxwidgets_base(base.lib_wxwidgets_base,Recipe):
 
 
 class bin_lsbsdk(Recipe):
-    SOURCE_URL = "http://ftp.linuxfoundation.org/pub/lsb/bundles/released-4.1.0/sdk/lsb-sdk-4.1.5-1.ia32.tar.gz"
+    @property
+    def SOURCE_URL(self):
+        url = {
+                '32bit': 'http://ftp.linuxfoundation.org/pub/lsb/bundles/released-4.1.0/sdk/lsb-sdk-4.1.5-1.ia32.tar.gz',
+                '64bit': 'http://ftp.linuxfoundation.org/pub/lsb/bundles/released-4.1.0/sdk/lsb-sdk-4.1.5-1.x86_64.tar.gz',
+        }
+        return url[self.target.ARCH]
     def build(self):
         pass
     def install(self):
