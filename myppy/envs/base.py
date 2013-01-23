@@ -113,7 +113,7 @@ class MyppyEnv(object):
     def SITE_PACKAGES(self):
         return os.path.join(self.PREFIX,"lib","python2.7","site-packages")
 
-    def init(self, args):
+    def init(self, args=[]):
         """Build the base myppy python environment."""
         # User is allowed to specify architecture of myppy python environment.
         # If no architecture is specified - defaults to the architecture

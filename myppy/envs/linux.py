@@ -5,7 +5,6 @@ from __future__ import with_statement
 
 import os
 import stat
-import subprocess
 
 from myppy.envs import base
 
@@ -24,6 +23,11 @@ class MyppyEnv(base.MyppyEnv):
         return switch[self.ARCH]
 
     @property
+    def _lsb_libdir(self):
+        libdir = {'32bit': 'opt/lsb/lib', '64bit': 'opt/lsb/lib64'}
+        return libdir[self.ARCH]
+
+    @property
     def CC(self):
         return "lsbcc " + self._arch_switch
 
@@ -33,25 +37,25 @@ class MyppyEnv(base.MyppyEnv):
 
     @property
     def LDFLAGS(self):
-        flags = self._arch_switch + ''
-        dirs = {
-                '32bit':("lib", "opt/lsb/lib"),
-                '64bit':('lib', 'opt/lsb/lib64'),
-        }
-        for libdir in dirs[self.ARCH]:
+        #  --lsb-besteffort tweaks  executables so they do not hardcode
+        #  the special lsb-specified loader but uses best-effort code
+        #  to choose the dynamic linker at runtime. This trades
+        #  lsb-compatability for ability to run out-of-the-box on more linuxen.
+        flags = self._arch_switch + ' --lsb-besteffort '
+        for libdir in ("lib", self._lsb_libdir):
             flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
     @property
     def CFLAGS(self):
-        flags = "-fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
+        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def CXXFLAGS(self):
-        flags = "-fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
+        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", "opt/lsb/include"):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
@@ -63,7 +67,7 @@ class MyppyEnv(base.MyppyEnv):
     @property
     def PKG_CONFIG_PATH(self):
         return ":".join((os.path.join(self.PREFIX,"lib/pkgconfig"),
-                         os.path.join(self.PREFIX,"opt/lsb/lib/pkgconfig"),))
+                         os.path.join(self.PREFIX, self._lsb_libdir, 'pkgconfig'),))
 
     def __init__(self,rootdir):
         super(MyppyEnv,self).__init__(rootdir)
@@ -77,7 +81,7 @@ class MyppyEnv(base.MyppyEnv):
         self._add_env_path("PATH",os.path.join(self.PREFIX,"opt/lsb/bin"),1)
         self._add_env_path("PKG_CONFIG_PATH",self.PKG_CONFIG_PATH)
         self.env["PKG_CONFIG_SYSROOT_DIR"] = self.PREFIX.rstrip("/")
-        self.env["LSBCC_LIBS"] = os.path.join(self.PREFIX,"opt/lsb/lib")
+        self.env["LSBCC_LIBS"] = os.path.join(self.PREFIX, self._lsb_libdir)
         self.env["LSBCC_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
         self.env["LSBCXX_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
         self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib")
@@ -101,7 +105,6 @@ class MyppyEnv(base.MyppyEnv):
                             if recipe not in ("python27",):
                                 self._strip(fpath)
                             self._adjust_rpath(fpath)
-                            self._adjust_interp_path(fpath)
         super(MyppyEnv,self).record_files(recipe,files)
 
     def _strip(self,fpath):
@@ -139,21 +142,6 @@ class MyppyEnv(base.MyppyEnv):
             rpath = "/".join(backrefs) + "/lib"
             rpath = "${ORIGIN}:${ORIGIN}/" + rpath
             self.do("patchelf","--set-rpath",rpath,fpath)
-
-    def _adjust_interp_path(self,fpath):
-        #  Tweak executables so they use the normal linux loader, not
-        #  the special lsb-specified one.  This trades lsb-compatability
-        #  for ability to run out-of-the-box on more linuxen.
-        if os.path.exists(os.path.join(self.PREFIX,"bin","patchelf")):
-            try:
-                interp = self.bt("patchelf", "--print-interpreter", fpath)
-            except subprocess.CalledProcessError:
-                raise
-            else:
-                if interp.strip() == "/lib/ld-lsb.so.3":
-                    print "ADJUSTING INTERPRETER PATH", fpath
-                    new_interp = "/lib/ld-linux.so.2"
-                    self.do("patchelf", "--set-interpreter", new_interp, fpath)
 
     def load_recipe(self,recipe):
         return self._load_recipe_subclass(recipe,MyppyEnv,_linux_recipes)
