@@ -492,7 +492,11 @@ class lib_openssl(Recipe):
 
 
 class lib_sqlite3(Recipe):
-    SOURCE_URL = "http://www.sqlite.org/sqlite-autoconf-3070500.tar.gz"
+    SOURCE_URL = "http://www.sqlite.org/sqlite-autoconf-3071201.tar.gz"
+    SOURCE_MD5 = 'eb7bbd258913518ad30971ea7ecb0ca9'
+    CONFIGURE_ARGS = ('--enable-static', '--enable-shared',
+        '--disable-readline', '--disable-dynamic-extensions',
+    )
 
 
 class py_setuptools(PyRecipe):
