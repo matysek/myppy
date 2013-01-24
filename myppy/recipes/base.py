@@ -150,6 +150,8 @@ class Recipe(object):
         if relpath is None:
             relpath = self.MAKE_RELPATH
         cmd = ["make"]
+        # Parallel execution of compilation.
+        cmd.append('-j3')
         if vars is not None:
             cmd.extend(vars)
         if makefile is not None:

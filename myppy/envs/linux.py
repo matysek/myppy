@@ -41,28 +41,29 @@ class MyppyEnv(base.MyppyEnv):
         #  the special lsb-specified loader but uses best-effort code
         #  to choose the dynamic linker at runtime. This trades
         #  lsb-compatability for ability to run out-of-the-box on more linuxen.
-        flags = self._arch_switch + ' --lsb-besteffort '
-        for libdir in ("lib", self._lsb_libdir):
+        flags = self._arch_switch + ' --lsb-besteffort ' + ' '
+        for libdir in ("lib", ):  #self._lsb_libdir):
             flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
     @property
     def CFLAGS(self):
-        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
-        for incdir in ("include", "opt/lsb/include"):
+        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch + ' '
+        for incdir in ("include", 'include/ncurses'):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def CXXFLAGS(self):
         flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
-        for incdir in ("include", "opt/lsb/include"):
+        for incdir in ("include", ):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def LD_LIBRARY_PATH(self):
-        return os.path.join(self.PREFIX,"lib")
+        #return os.path.join(self.PREFIX,"lib")
+        return ''
 
     @property
     def PKG_CONFIG_PATH(self):
@@ -79,14 +80,21 @@ class MyppyEnv(base.MyppyEnv):
         self.env["CFLAGS"] = self.CFLAGS
         self.env["CXXFLAGS"] = self.CXXFLAGS
         self._add_env_path("PATH",os.path.join(self.PREFIX,"opt/lsb/bin"),1)
-        self._add_env_path("PKG_CONFIG_PATH",self.PKG_CONFIG_PATH)
-        self.env["PKG_CONFIG_SYSROOT_DIR"] = self.PREFIX.rstrip("/")
+        #self._add_env_path("PKG_CONFIG_PATH",self.PKG_CONFIG_PATH)
+        #self.env["PKG_CONFIG_SYSROOT_DIR"] = self.PREFIX.rstrip("/")
+        #self.env['PKG_CONFIG_LIBDIR'] =
+        # Linux Standard Base (LSB) specific environment variables. (for commands lsbcc / lsbc++)
         self.env["LSBCC_LIBS"] = os.path.join(self.PREFIX, self._lsb_libdir)
+        #self.env["LSBCC_INCLUDES"] = os.path.join(self.PREFIX,"include")
         self.env["LSBCC_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
+        #self.env["LSBCXX_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
         self.env["LSBCXX_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
         self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib")
-        self.env["LSBCC_SHAREDLIBS"] = "python:python2.7:crypto:readline:bz2"
-        self.env["LSBCC_VERBOSE"] = os.path.join(self.PREFIX,"lib")
+        #self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib") + ':' + os.path.join(self.PREFIX,"opt/lsb/lib64")
+        self.env["LSBCC_SHAREDLIBS"] = "bz2:crypto:ncurses:ncursesw:python:python2.7:readline"
+        #self.env["LSBCC_SHAREDLIBS"] = "ncurses"
+        #self.env["LSBCC_VERBOSE"] = os.path.join(self.PREFIX,"lib")
+        self.env["LSBCC_VERBOSE"] = '0x0040'
 
     def record_files(self,recipe,files):
         if recipe not in ("bin_lsbsdk",):

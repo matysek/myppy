@@ -146,7 +146,10 @@ class cmake(base.cmake,Recipe):
 
 class python27(base.python27,Recipe,):
     """Install the basic Python interpreter, with myppy support."""
-    DEPENDENCIES = ["lib_openssl"]
+    # Without ncurses the '_curses' python module is not compiled properly.
+    # LSB version of ncurses library does not contain some symbols that this
+    # '_curses' module needs.
+    DEPENDENCIES = ["lib_openssl", 'lib_ncurses']
 
     def _post_config_patch(self):
         super(python27,self)._post_config_patch()
@@ -211,6 +214,38 @@ class lib_openssl(base.lib_openssl,Recipe):
                 else:
                     yield ln
         self._patch_build_file("Makefile",ensure_gnu_source)
+
+
+class lib_ncurses(Recipe):
+    SOURCE_URL = 'http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz'
+    SOURCE_MD5 = '8cb9c412e5f2d96bc6f459aa8c6282a1'
+    CONFIGURE_ARGS = [
+        '--with-shared',
+        '--with-static',
+        '--enable-widec'
+        '--with-mmask-t=long', '--disable-ext-colors',
+        '--without-pthread',
+        '--without-reentrant',
+        '--without-hashed-db',
+        '--disable-termcap',
+        '--enable-symlinks',
+        # Disable C++ bindings otherwise fails to compile.
+        '--without-cxx', '--without-cxx-binding',
+        '--without-ada',
+        '--with-rcs-ids',
+        '--without-manpages',
+        '--without-progs',
+        '--without-tests',
+        '--enable-const',
+        '--enable-colorfgbg',
+        '--enable-echo',
+        # This forces ncures using terminfo from host OS.
+        '--with-default-terminfo-dir=/usr/share/terminfo',
+        # Without mouse.
+        '--disable-ext-mouse',
+        '--with-sysmouse',
+        '--without-gpm',
+    ]
 
 
 class py_cxfreeze(PyRecipe):
