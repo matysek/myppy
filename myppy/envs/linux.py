@@ -42,7 +42,7 @@ class MyppyEnv(base.MyppyEnv):
         #  to choose the dynamic linker at runtime. This trades
         #  lsb-compatability for ability to run out-of-the-box on more linuxen.
         flags = self._arch_switch + ' --lsb-besteffort ' + ' '
-        for libdir in ("lib", ):  #self._lsb_libdir):
+        for libdir in ("lib", ):
             flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
@@ -80,21 +80,23 @@ class MyppyEnv(base.MyppyEnv):
         self.env["CFLAGS"] = self.CFLAGS
         self.env["CXXFLAGS"] = self.CXXFLAGS
         self._add_env_path("PATH",os.path.join(self.PREFIX,"opt/lsb/bin"),1)
-        #self._add_env_path("PKG_CONFIG_PATH",self.PKG_CONFIG_PATH)
-        #self.env["PKG_CONFIG_SYSROOT_DIR"] = self.PREFIX.rstrip("/")
-        #self.env['PKG_CONFIG_LIBDIR'] =
-        # Linux Standard Base (LSB) specific environment variables. (for commands lsbcc / lsbc++)
+        self._add_env_path("PKG_CONFIG_PATH",self.PKG_CONFIG_PATH)
+        self.env["PKG_CONFIG_SYSROOT_DIR"] = self.PREFIX.rstrip("/")
+        # PKG_CONFIG_LIBDIR tells pkg-config where to look for .pc files.
+        self.env['PKG_CONFIG_LIBDIR'] = os.path.join(self.PREFIX, 'lib') + ':' +  os.path.join(self.PREFIX, self._lsb_libdir) 
+
+        ## Linux Standard Base (LSB) specific environment variables. (for commands lsbcc / lsbc++)
+        # Path to LSB stub libraries.
         self.env["LSBCC_LIBS"] = os.path.join(self.PREFIX, self._lsb_libdir)
-        #self.env["LSBCC_INCLUDES"] = os.path.join(self.PREFIX,"include")
+        # Path to LSB C/C++ header files.
         self.env["LSBCC_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
-        #self.env["LSBCXX_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
         self.env["LSBCXX_INCLUDES"] = os.path.join(self.PREFIX,"opt/lsb/include")
+        # Where to look for additional libraries outside LSB specification.
         self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib")
-        #self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib") + ':' + os.path.join(self.PREFIX,"opt/lsb/lib64")
+        # Shared libraries outside LSB spec to be allowed to link with.
         self.env["LSBCC_SHAREDLIBS"] = "bz2:crypto:ncurses:ncursesw:python:python2.7:readline"
-        #self.env["LSBCC_SHAREDLIBS"] = "ncurses"
-        #self.env["LSBCC_VERBOSE"] = os.path.join(self.PREFIX,"lib")
-        self.env["LSBCC_VERBOSE"] = '0x0040'
+        # For debugging lsbcc options.
+        #self.env["LSBCC_VERBOSE"] = '0x0040'
 
     def record_files(self,recipe,files):
         if recipe not in ("bin_lsbsdk",):

@@ -220,8 +220,8 @@ class lib_ncurses(Recipe):
     SOURCE_URL = 'http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.9.tar.gz'
     SOURCE_MD5 = '8cb9c412e5f2d96bc6f459aa8c6282a1'
     CONFIGURE_ARGS = [
-        '--with-shared',
-        '--with-static',
+        #'--with-shared',
+        #'--with-static',
         '--enable-widec'
         '--with-mmask-t=long', '--disable-ext-colors',
         '--without-pthread',
