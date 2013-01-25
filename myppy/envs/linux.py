@@ -42,28 +42,26 @@ class MyppyEnv(base.MyppyEnv):
         #  to choose the dynamic linker at runtime. This trades
         #  lsb-compatability for ability to run out-of-the-box on more linuxen.
         flags = self._arch_switch + ' --lsb-besteffort ' + ' '
-        for libdir in ("lib", ):
-            flags += " -L" + os.path.join(self.PREFIX,libdir)
         return flags
 
     @property
     def CFLAGS(self):
-        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch + ' '
+        flags = " -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch + ' '
+        # Some recipes might not be able to find ncurses. Include it explicitly.
         for incdir in ("include", 'include/ncurses'):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def CXXFLAGS(self):
-        flags = " --lsb-besteffort -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
+        flags = " -fPIC -Os -D_GNU_SOURCE -DNDEBUG " + self._arch_switch
         for incdir in ("include", ):
             flags += " -I" + os.path.join(self.PREFIX,incdir)
         return  flags
 
     @property
     def LD_LIBRARY_PATH(self):
-        #return os.path.join(self.PREFIX,"lib")
-        return ''
+        return os.path.join(self.PREFIX,"lib")
 
     @property
     def PKG_CONFIG_PATH(self):
@@ -94,7 +92,9 @@ class MyppyEnv(base.MyppyEnv):
         # Where to look for additional libraries outside LSB specification.
         self.env["LSB_SHAREDLIBPATH"] = os.path.join(self.PREFIX,"lib")
         # Shared libraries outside LSB spec to be allowed to link with.
-        self.env["LSBCC_SHAREDLIBS"] = "bz2:crypto:ncurses:ncursesw:python:python2.7:readline"
+        # Not having 'python' causes to link 'libpython' statically with every
+        # Python C extension and drastically increases size of myppy environment.
+        self.env["LSBCC_SHAREDLIBS"] = "bz2:crypto:ncurses:ncursesw:python:python2.7:readline:ssl"
         # For debugging lsbcc options.
         #self.env["LSBCC_VERBOSE"] = '0x0040'
 
