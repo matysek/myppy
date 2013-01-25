@@ -94,8 +94,8 @@ class MyppyEnv(base.MyppyEnv):
     def CXX(self):
         return self.DEPLOYMENT_TARGET_SETTINGS["CXX"]
 
-    def __init__(self,rootdir):
-        super(MyppyEnv,self).__init__(rootdir)
+    def __init__(self,rootdir, architecture):
+        super(MyppyEnv,self).__init__(rootdir, architecture)
         self.env["CC"] = "/usr/bin/gcc"
         self.env["CXX"] = "/usr/bin/g++"
         self.env["MACOSX_DEPLOYMENT_TARGET"] = self.MACOSX_DEPLOYMENT_TARGET

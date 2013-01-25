@@ -68,8 +68,8 @@ class MyppyEnv(base.MyppyEnv):
         return ":".join((os.path.join(self.PREFIX,"lib/pkgconfig"),
                          os.path.join(self.PREFIX, self._lsb_libdir, 'pkgconfig'),))
 
-    def __init__(self,rootdir):
-        super(MyppyEnv,self).__init__(rootdir)
+    def __init__(self,rootdir, architecture):
+        super(MyppyEnv,self).__init__(rootdir, architecture)
         if not os.path.exists(os.path.join(self.PREFIX,"lib")):
             os.makedirs(os.path.join(self.PREFIX,"lib"))
         self.env["CC"] = self.CC

@@ -52,7 +52,7 @@ class MyppyEnv(object):
 
     DB_NAME = os.path.join("local","myppy.db")
 
-    def __init__(self,rootdir):
+    def __init__(self,rootdir, architecture):
         if not isinstance(rootdir,unicode):
             rootdir = rootdir.decode(sys.getfilesystemencoding())
         self.rootdir = os.path.abspath(rootdir)
@@ -69,9 +69,9 @@ class MyppyEnv(object):
             os.makedirs(os.path.dirname(dbpath))
         self._db = sqlite3.connect(dbpath,isolation_level=None)
         self._initdb()
-        # Whether to build 32bit or 64bit architecture. Defaults to archtecture
+        # Whether to build 32bit or 64bit architecture. Defaults to architecture
         # of Python interpreter.
-        self.ARCH = util.python_architecture()
+        self.ARCH = architecture
 
     def __enter__(self):
         if not self._has_db_lock:
@@ -124,11 +124,6 @@ class MyppyEnv(object):
 
     def init(self, args=[]):
         """Build the base myppy python environment."""
-        # User is allowed to specify architecture of myppy python environment.
-        # If no architecture is specified - defaults to the architecture
-        # of Python (32bit on linux-i686 and 64bit on linux-x86_64)
-        if len(args) == 1:
-            self.ARCH = args[0]
         for dep in self.DEPENDENCIES:
             self.install(dep,initialising=True,explicit=False)
         

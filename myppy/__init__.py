@@ -130,6 +130,8 @@ elif sys.platform == "win32":
 else:
     raise ImportError("myppy not available on platform %r" % (sys.platform,))
 
+from myppy import util
+
 
 
 def main(argv):
@@ -138,9 +140,20 @@ def main(argv):
         argv = argv + [".","help"]
     elif len(argv) < 3:
         argv = argv + ["help"]
-    target = MyppyEnv(argv[1])
     cmd = argv[2]
     args = argv[3:]
+
+    # Default architecture - 32bit on 32-bit linux and 64bit on 64-bit linux.
+    architecture = util.python_architecture()
+    # User is allowed to specify architecture of myppy python environment.
+    # If no architecture is specified - defaults to the architecture
+    # of Python (32bit on linux-i686 and 64bit on linux-x86_64)
+    if cmd == 'init' and len(args) == 1:
+        architecture = args[0]
+        args = []
+    # We need to pass 32bit or 64bit to MyppyEnv.
+    target = MyppyEnv(argv[1], architecture)
+
     if cmd == "help":
         print ""
         print "myppy: make you a portable python"
@@ -175,10 +188,7 @@ class _init(_cmd):
     """initialise a new portable python env"""
     @staticmethod
     def run(target,args):
-        # Allow the user to specify architecture '32bit' or '64bit' as part
-        # of environment setup. If not specified defaults to the architecture
-        # of host OS. (Linux only).
-        assert not args or len(args) == 1
+        assert not args
         target.init(args)
 
 class _clean(_cmd):
