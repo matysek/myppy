@@ -24,6 +24,15 @@ from myppy import util
 from myppy.recipes import base as _base_recipes
 
 
+# Allow custom recipes to be located in file ./myppy/recipes/custom.py.
+# This file should not exist by default. Users should put their specific
+# recipes to that file.
+try:
+    from myppy.recipes import custom as _custom_recipes
+except ImportError:
+    _custom_recipes = None
+
+
 class MyppyEnv(object):
     """A myppy environment.
 
@@ -264,16 +273,20 @@ class MyppyEnv(object):
 
     def _load_recipe_subclass(self,recipe,MyppyEnv,submod):
         try:
-            r = getattr(submod,recipe)
+            # First look in the custom recipes.
+            r = getattr(_custom_recipes,recipe)
         except AttributeError:
-            rbase = super(MyppyEnv,self).load_recipe(recipe).__class__
-            rsuprnm = rbase.__bases__[0].__name__
-            rsupr = self.load_recipe(rsuprnm).__class__
-            class r(rbase,rsupr):
-                pass
-            r.__name__ = rbase.__name__
-            r.__module__ = submod.__name__
-            setattr(submod,recipe,r)
+            try:
+                r = getattr(submod,recipe)
+            except AttributeError:
+                rbase = super(MyppyEnv,self).load_recipe(recipe).__class__
+                rsuprnm = rbase.__bases__[0].__name__
+                rsupr = self.load_recipe(rsuprnm).__class__
+                class r(rbase,rsupr):
+                    pass
+                r.__name__ = rbase.__name__
+                r.__module__ = submod.__name__
+                setattr(submod,recipe,r)
         return r(self)
 
     def _is_tempfile(self,path):
