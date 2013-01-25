@@ -408,7 +408,7 @@ class lib_bz2(Recipe):
 
 
 class lib_readline(Recipe):
-    SOURCE_URL = "ftp://ftp.cwru.edu/pub/bash/readline-6.2.tar.gz"
+    SOURCE_URL = "ftp://ftp.gnu.org/gnu/readline/readline-6.2.tar.gz"
     SOURCE_MD5 = "67948acb2ca081f23359d0256e9a271c"
     CONFIGURE_ARGS = ("--disable-shared","--enable-static",)
 
