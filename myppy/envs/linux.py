@@ -42,6 +42,9 @@ class MyppyEnv(base.MyppyEnv):
         #  to choose the dynamic linker at runtime. This trades
         #  lsb-compatability for ability to run out-of-the-box on more linuxen.
         flags = self._arch_switch + ' --lsb-besteffort ' + ' '
+        # Some recipes require this -L/libdir ldflag.
+        for libdir in ('lib', ):
+            flags += ' -L' + os.path.join(self.PREFIX, libdir)
         return flags
 
     @property
